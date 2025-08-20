@@ -78,12 +78,6 @@ export default function PomodoroTimer() {
     setTimeLeft(timerConfig[timerType])
   }
 
-  const handleTimerTypeChange = (type: TimerType) => {
-    setTimerType(type)
-    setTimeLeft(timerConfig[type])
-    setIsActive(false)
-  }
-
   const handleUpdateSession = (sessionNumber: number, todos: TodoItem[]) => {
     setSessionData(prevData => {
       const existingSessionIndex = prevData.findIndex(s => s.sessionNumber === sessionNumber)
@@ -144,33 +138,44 @@ export default function PomodoroTimer() {
               What do you want to focus on? ✏️
             </h1>
 
-            {/* Timer Type Buttons */}
-            <div className="flex gap-3 justify-center mb-8">
-              {(['focus', 'shortBreak', 'longBreak'] as TimerType[]).map((type) => (
-                <button
-                  key={type}
-                  onClick={() => handleTimerTypeChange(type)}
-                  className={`px-6 py-2 rounded-full transition-all duration-200 ${
-                    timerType === type
-                      ? 'bg-blue-600 text-white shadow-lg'
-                      : 'bg-white/20 text-white/80 hover:bg-white/30'
-                  }`}
-                >
-                  {timerLabels[type]}
-                </button>
-              ))}
-            </div>
-
-            {/* Session Indicators */}
+            {/* Session Indicators - Shows 4 focus sessions, 3 short breaks, and 1 long break */}
             <div className="flex justify-center gap-2 mb-8">
-              {[1, 2, 3, 4].map((session) => (
-                <div
-                  key={session}
-                  className={`w-3 h-3 rounded-full ${
-                    session <= sessions ? 'bg-white' : session === currentSession ? 'bg-blue-400' : 'bg-white/30'
-                  }`}
-                />
-              ))}
+              {[1, 2, 3, 4, 5, 6, 7, 8].map((step) => {
+                // Determine if this is a focus session (odd numbers) or break (even numbers)
+                const isFocusSession = step % 2 === 1
+                const isShortBreak = step % 2 === 0 && step !== 8
+                const isLongBreak = step === 8
+                
+                // Calculate current position in the cycle
+                const currentStep = sessions * 2 + (timerType === 'focus' ? 1 : 2)
+                const isActive = step === currentStep
+                const isCompleted = step < currentStep
+                
+                let bgColor = 'bg-white/30' // Default (not reached)
+                if (isCompleted) {
+                  if (isFocusSession) bgColor = 'bg-white'
+                  else if (isShortBreak) bgColor = 'bg-yellow-400'
+                  else if (isLongBreak) bgColor = 'bg-red-400'
+                } else if (isActive) {
+                  if (isFocusSession) bgColor = 'bg-blue-400'
+                  else if (isShortBreak) bgColor = 'bg-yellow-300'
+                  else if (isLongBreak) bgColor = 'bg-red-300'
+                }
+
+                return (
+                  <div
+                    key={step}
+                    className={`w-3 h-3 rounded-full ${bgColor} transition-colors duration-300`}
+                    title={
+                      isFocusSession 
+                        ? `Focus Session ${Math.ceil(step / 2)}`
+                        : isShortBreak 
+                        ? `Short Break ${step / 2}`
+                        : 'Long Break'
+                    }
+                  />
+                )
+              })}
             </div>
           </div>
 
@@ -212,31 +217,36 @@ export default function PomodoroTimer() {
 
           {/* Control Buttons */}
           <div className="flex justify-center gap-4">
-            <button
-              onClick={handleStart}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-medium transition-colors duration-200"
-            >
-              {isActive ? 'Pause' : 'Start'}
-            </button>
-            
-            <button
-              onClick={handleReset}
-              className="p-3 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-all duration-200"
-              title="Reset"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-            </button>
-
-            <button
-              className="p-3 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-all duration-200"
-              title="Minimize"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
-              </svg>
-            </button>
+            {!isActive && timeLeft === timerConfig[timerType] ? (
+              // Default state - only Start button
+              <button
+                onClick={handleStart}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-medium transition-colors duration-200"
+              >
+                Start
+              </button>
+            ) : (
+              // Timer is running or paused - show Stop and Pause/Resume buttons
+              <>
+                <button
+                  onClick={handleReset}
+                  className="bg-gray-600 hover:bg-gray-700 text-white px-8 py-3 rounded-lg font-medium transition-colors duration-200"
+                >
+                  Stop
+                </button>
+                
+                <button
+                  onClick={handleStart}
+                  className={`${
+                    isActive 
+                      ? 'bg-red-600 hover:bg-red-700' 
+                      : 'bg-blue-600 hover:bg-blue-700'
+                  } text-white px-8 py-3 rounded-lg font-medium transition-colors duration-200`}
+                >
+                  {isActive ? 'Pause' : 'Resume'}
+                </button>
+              </>
+            )}
           </div>
 
           {/* Session Counter */}
