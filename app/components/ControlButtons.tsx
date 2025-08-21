@@ -5,7 +5,7 @@ import MusicPlayer from './MusicPlayer'
 import Image from 'next/image'
 
 interface ControlButtonsProps {
-  onGenerateQuote: () => Promise<void> | void
+  onGenerateQuote: () => Promise<void>
 }
 
 export default function ControlButtons({ onGenerateQuote }: ControlButtonsProps) {
@@ -28,8 +28,8 @@ export default function ControlButtons({ onGenerateQuote }: ControlButtonsProps)
         disabled={isGeneratingQuote}
         className={`${
           isGeneratingQuote 
-            ? 'bg-teal-400 cursor-not-allowed' 
-            : 'bg-linear-to-r from-[#66A1F3] to-[#22C9A6] hover:bg-teal-600'
+            ? 'bg-gradient-to-r from-[#66A1F3] via-[#22C9A6] to-[#66A1F3] animated-background cursor-not-allowed' 
+            : 'bg-gradient-to-r from-[#66A1F3] to-[#22C9A6] hover:from-[#5A91E3] hover:to-[#1FB896]'
         } text-white px-6 py-3 rounded-full font-bold transition-all duration-200 flex items-center gap-3 shadow-lg hover:shadow-teal-500/25`}
       >
         <Image

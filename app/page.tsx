@@ -461,9 +461,9 @@ export default function PomodoroTimer() {
 
           {/* Control Buttons Section */}
           <ControlButtons 
-            onGenerateQuote={() => {
+            onGenerateQuote={async () => {
               if (quoteGeneratorRef.current) {
-                quoteGeneratorRef.current.generateNewQuote()
+                await quoteGeneratorRef.current.generateNewQuote()
               }
             }} 
           />
