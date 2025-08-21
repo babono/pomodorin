@@ -21,7 +21,7 @@ export default function ControlButtons({ onGenerateQuote }: ControlButtonsProps)
   }
 
   return (
-    <div className="flex justify-center gap-4 pb-8">
+    <div className="flex justify-center gap-4 pb-4">
       <MusicPlayer />  
       <button
         onClick={handleGenerateQuote}

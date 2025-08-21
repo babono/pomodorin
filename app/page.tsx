@@ -275,6 +275,14 @@ export default function PomodoroTimer() {
             <AIQuoteGenerator ref={quoteGeneratorRef} />
           </div>
         </div>
+        {/* Control Buttons Section */}
+          <ControlButtons 
+            onGenerateQuote={async () => {
+              if (quoteGeneratorRef.current) {
+                await quoteGeneratorRef.current.generateNewQuote()
+              }
+            }} 
+          />
         
         {/* Main Content */}
         <div className="flex flex-col flex-1 justify-center">
@@ -449,7 +457,7 @@ export default function PomodoroTimer() {
         </div>
 
           {/* Session Cards Section */}
-          <div className="pb-8">
+          <div className="pb-4">
             <SessionCards
               currentSession={currentSession}
               sessions={sessionData}
@@ -458,15 +466,7 @@ export default function PomodoroTimer() {
               isTimerActive={isActive}
             />
           </div>
-
-          {/* Control Buttons Section */}
-          <ControlButtons 
-            onGenerateQuote={async () => {
-              if (quoteGeneratorRef.current) {
-                await quoteGeneratorRef.current.generateNewQuote()
-              }
-            }} 
-          />
+          
         </div>
       </div>
     </div>
