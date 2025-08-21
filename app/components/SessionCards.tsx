@@ -252,7 +252,9 @@ export default function SessionCards({
               {/* Future Session Indicator */}
               {isFuture && session.todos.length === 0 && (
                 <div className="text-center py-6 text-gray-500 text-sm">
-                  <div className="mb-2">🔒</div>
+                  <div className="mb-2 flex justify-center">
+                    <img src="/ic-lock.svg" alt="Lock" className="w-6 h-6 opacity-60" />
+                  </div>
                   <div>Complete Session {currentSession} first</div>
                 </div>
               )}

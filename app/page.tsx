@@ -263,15 +263,17 @@ export default function PomodoroTimer() {
       {/* Hyperspeed Background */}
       <Hyperspeed isTimerRunning={isActive && timerType === 'focus'} />
       
-      {/* Top Bar with Logo */}
-      <div className="relative z-10 w-full">
-        <div className="text-center py-6">
-          <h1 className="text-white text-5xl font-bold">POMODORIN</h1>
+      {/* Main Content Container - Centered */}
+      <div className="relative z-10 min-h-screen flex flex-col justify-center">
+        {/* Top Bar with Logo */}
+        <div className="w-full">
+          <div className="text-center py-6">
+            <h1 className="text-white text-5xl font-bold">POMODORIN</h1>
+          </div>
         </div>
-      </div>
-      
-      {/* Main Content */}
-      <div className="relative z-10 flex flex-col">
+        
+        {/* Main Content */}
+        <div className="flex flex-col flex-1 justify-center">
         {/* Timer Section */}
         <div className="flex items-center justify-center p-4">
           <div className="max-w-md w-full">
@@ -442,15 +444,16 @@ export default function PomodoroTimer() {
           </div>
         </div>
 
-        {/* Session Cards Section */}
-        <div className="pb-8">
-          <SessionCards
-            currentSession={currentSession}
-            sessions={sessionData}
-            onUpdateSession={handleUpdateSession}
-            onCompleteSession={handleCompleteSession}
-            isTimerActive={isActive}
-          />
+          {/* Session Cards Section */}
+          <div className="pb-8">
+            <SessionCards
+              currentSession={currentSession}
+              sessions={sessionData}
+              onUpdateSession={handleUpdateSession}
+              onCompleteSession={handleCompleteSession}
+              isTimerActive={isActive}
+            />
+          </div>
         </div>
       </div>
     </div>
