@@ -305,8 +305,11 @@ export default function PomodoroTimer() {
               {/* Timer Content */}
               <div className="absolute inset-0 flex flex-col items-center justify-center">
                 {/* Streak Counter */}
-                <div className="text-white text-lg font-semibold mb-3">
-                  🔥 Streak: {streak}
+                <div className="text-white text-lg font-semibold mb-3 flex items-center gap-2">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path fillRule="evenodd" clipRule="evenodd" d="M17.1085 5H19.5755C19.9895 5 20.3255 4.664 20.3255 4.25C20.3255 3.836 19.9895 3.5 19.5755 3.5H14.8955C14.2115 3.5 13.6545 4.057 13.6545 4.742V9.16C13.6545 9.574 13.9895 9.91 14.4045 9.91C14.8185 9.91 15.1545 9.574 15.1545 9.16V5.563C17.5645 6.756 19.1095 9.215 19.1095 11.912C19.1095 15.82 15.9205 19 11.9995 19C8.0805 19 4.8905 15.82 4.8905 11.912C4.8905 8.659 7.0975 5.832 10.2565 5.038C10.6585 4.938 10.9025 4.529 10.8005 4.128C10.7005 3.727 10.2915 3.482 9.8905 3.583C6.0635 4.546 3.3905 7.971 3.3905 11.912C3.3905 16.647 7.2535 20.5 11.9995 20.5C16.7475 20.5 20.6095 16.647 20.6095 11.912C20.6095 9.154 19.2785 6.599 17.1085 5Z" fill="currentColor"/>
+                  </svg>
+                  Cycle Count: {streak}
                 </div>
                 
                 {/* Timer Text */}
@@ -320,62 +323,77 @@ export default function PomodoroTimer() {
                 </div>
 
                 {/* Session Indicators */}
-                <div className="flex gap-2">
-                  {[1, 2, 3, 4, 5, 6, 7, 8].map((step) => {
-                    // Determine if this is a focus session (odd numbers) or break (even numbers)
-                    const isFocusSession = step % 2 === 1
-                    const isShortBreak = step % 2 === 0 && step !== 8
-                    const isLongBreak = step === 8
-                    
-                    // Calculate current position in the cycle
-                    // For focus sessions: step 1,3,5,7 correspond to focus sessions 1,2,3,4
-                    // For breaks: step 2,4,6,8 correspond to breaks after sessions 1,2,3,4
-                    let currentStep
-                    if (timerType === 'focus') {
-                      currentStep = (sessions * 2) + 1 // Focus sessions are at odd steps
-                    } else {
-                      currentStep = sessions * 2 // Breaks are at even steps
-                    }
-                    const isCurrentStep = step === currentStep
-                    const isCompleted = step < currentStep
-                    
-                    let bgColor = 'bg-white/30' // Default (not reached)
-                    let additionalClasses = ''
-                    
-                    if (isCompleted) {
-                      if (isFocusSession) bgColor = 'bg-green-500' // Changed from white to green for completed focus sessions
-                      else if (isShortBreak) bgColor = 'bg-yellow-400'
-                      else if (isLongBreak) bgColor = 'bg-red-400'
-                    } else if (isCurrentStep) {
-                      if (isFocusSession) {
-                        bgColor = 'bg-blue-400'
-                        // Add blinking animation only when timer is actually running
-                        if (isActive) additionalClasses = 'animate-pulse'
+                <div className="flex flex-col items-center gap-3">
+                  <div className="flex gap-2">
+                    {[1, 2, 3, 4, 5, 6, 7, 8].map((step) => {
+                      // Determine if this is a focus session (odd numbers) or break (even numbers)
+                      const isFocusSession = step % 2 === 1
+                      const isShortBreak = step % 2 === 0 && step !== 8
+                      const isLongBreak = step === 8
+                      
+                      // Calculate current position in the cycle
+                      // For focus sessions: step 1,3,5,7 correspond to focus sessions 1,2,3,4
+                      // For breaks: step 2,4,6,8 correspond to breaks after sessions 1,2,3,4
+                      let currentStep
+                      if (timerType === 'focus') {
+                        currentStep = (sessions * 2) + 1 // Focus sessions are at odd steps
+                      } else {
+                        currentStep = sessions * 2 // Breaks are at even steps
                       }
-                      else if (isShortBreak) {
-                        bgColor = 'bg-yellow-300'
-                        if (isActive) additionalClasses = 'animate-pulse'
-                      }
-                      else if (isLongBreak) {
-                        bgColor = 'bg-red-300'
-                        if (isActive) additionalClasses = 'animate-pulse'
-                      }
-                    }
-
-                    return (
-                      <div
-                        key={step}
-                        className={`w-3 h-3 rounded-full ${bgColor} ${additionalClasses} transition-colors duration-300`}
-                        title={
-                          isFocusSession 
-                            ? `Focus Session ${Math.ceil(step / 2)}`
-                            : isShortBreak 
-                            ? `Short Break ${step / 2}`
-                            : 'Long Break'
+                      const isCurrentStep = step === currentStep
+                      const isCompleted = step < currentStep
+                      
+                      let bgColor = 'bg-white/30' // Default (not reached)
+                      let additionalClasses = ''
+                      
+                      if (isCompleted) {
+                        if (isFocusSession) bgColor = 'bg-green-500' // Changed from white to green for completed focus sessions
+                        else if (isShortBreak) bgColor = 'bg-yellow-400'
+                        else if (isLongBreak) bgColor = 'bg-red-400'
+                      } else if (isCurrentStep) {
+                        if (isFocusSession) {
+                          bgColor = 'bg-blue-400'
+                          // Add blinking animation only when timer is actually running
+                          if (isActive) additionalClasses = 'animate-pulse'
                         }
-                      />
-                    )
-                  })}
+                        else if (isShortBreak) {
+                          bgColor = 'bg-yellow-300'
+                          if (isActive) additionalClasses = 'animate-pulse'
+                        }
+                        else if (isLongBreak) {
+                          bgColor = 'bg-red-300'
+                          if (isActive) additionalClasses = 'animate-pulse'
+                        }
+                      }
+
+                      return (
+                        <div
+                          key={step}
+                          className={`w-3 h-3 rounded-full ${bgColor} ${additionalClasses} transition-colors duration-300`}
+                          title={
+                            isFocusSession 
+                              ? `Focus Session ${Math.ceil(step / 2)}`
+                              : isShortBreak 
+                              ? `Short Break ${step / 2}`
+                              : 'Long Break'
+                          }
+                        />
+                      )
+                    })}
+                  </div>
+                  
+                  {/* Current Session Icon */}
+                  <div className="flex items-center justify-center">
+                    {timerType === 'focus' ? (
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12.153 3.24991V5.16091M12.153 19.1454V21.0564M21.0558 12.1532H19.1458M5.16031 12.1532H3.25031M12.153 5.15321C16.019 5.15321 19.153 8.28721 19.153 12.1532C19.153 16.0182 16.019 19.1532 12.153 19.1532C8.28701 19.1532 5.15301 16.0182 5.15301 12.1532C5.15301 8.28721 8.28701 5.15321 12.153 5.15321ZM12.153 9.02821C10.427 9.02821 9.02801 10.4272 9.02801 12.1532C9.02801 13.8792 10.427 15.2782 12.153 15.2782C13.879 15.2782 15.278 13.8792 15.278 12.1532C15.278 10.4272 13.879 9.02821 12.153 9.02821Z" stroke="rgba(255,255,255,0.7)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    ) : (
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 7.5957V11.3657C12 11.6457 12.227 11.8737 12.507 11.8737H15.576M20.5 12C20.5 7.305 16.695 3.5 12 3.5C7.306 3.5 3.5 7.305 3.5 12C3.5 16.695 7.306 20.5 12 20.5C16.695 20.5 20.5 16.695 20.5 12Z" stroke="rgba(255,255,255,0.7)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
