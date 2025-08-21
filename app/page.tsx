@@ -275,84 +275,11 @@ export default function PomodoroTimer() {
         {/* Timer Section */}
         <div className="flex items-center justify-center p-4">
           <div className="max-w-md w-full">
-            {/* Streak Counter */}
-            <div className="text-center mb-4 text-white">
-              <div className="text-lg font-semibold">
-                🔥 Streak: {streak}
-              </div>
-            </div>
-
-            {/* Session Counter */}
-            <div className="text-center mb-2 text-white/60">
-              <div className="text-sm">
-                Session {currentSession} • {timerType === 'focus' ? 'Focus Time' : timerType === 'shortBreak' ? 'Short Break' : 'Long Break'}
-              </div>
-            </div>
-
-            {/* Session Indicators - Shows 4 focus sessions, 3 short breaks, and 1 long break */}
-          <div className="flex justify-center gap-2 mb-8">
-            {[1, 2, 3, 4, 5, 6, 7, 8].map((step) => {
-              // Determine if this is a focus session (odd numbers) or break (even numbers)
-              const isFocusSession = step % 2 === 1
-              const isShortBreak = step % 2 === 0 && step !== 8
-              const isLongBreak = step === 8
-              
-              // Calculate current position in the cycle
-              // For focus sessions: step 1,3,5,7 correspond to focus sessions 1,2,3,4
-              // For breaks: step 2,4,6,8 correspond to breaks after sessions 1,2,3,4
-              let currentStep
-              if (timerType === 'focus') {
-                currentStep = (sessions * 2) + 1 // Focus sessions are at odd steps
-              } else {
-                currentStep = sessions * 2 // Breaks are at even steps
-              }
-              const isCurrentStep = step === currentStep
-              const isCompleted = step < currentStep
-              
-              let bgColor = 'bg-white/30' // Default (not reached)
-              let additionalClasses = ''
-              
-              if (isCompleted) {
-                if (isFocusSession) bgColor = 'bg-green-500' // Changed from white to green for completed focus sessions
-                else if (isShortBreak) bgColor = 'bg-yellow-400'
-                else if (isLongBreak) bgColor = 'bg-red-400'
-              } else if (isCurrentStep) {
-                if (isFocusSession) {
-                  bgColor = 'bg-blue-400'
-                  // Add blinking animation only when timer is actually running
-                  if (isActive) additionalClasses = 'animate-pulse'
-                }
-                else if (isShortBreak) {
-                  bgColor = 'bg-yellow-300'
-                  if (isActive) additionalClasses = 'animate-pulse'
-                }
-                else if (isLongBreak) {
-                  bgColor = 'bg-red-300'
-                  if (isActive) additionalClasses = 'animate-pulse'
-                }
-              }
-
-              return (
-                <div
-                  key={step}
-                  className={`w-3 h-3 rounded-full ${bgColor} ${additionalClasses} transition-colors duration-300`}
-                  title={
-                    isFocusSession 
-                      ? `Focus Session ${Math.ceil(step / 2)}`
-                      : isShortBreak 
-                      ? `Short Break ${step / 2}`
-                      : 'Long Break'
-                  }
-                />
-              )
-            })}
-          </div>
-
           {/* Timer Display */}
           <div className="text-center mb-4">
             <div className="relative inline-block">
               {/* Progress Ring */}
-              <svg className="w-80 h-80 -rotate-90" viewBox="0 0 200 200">
+              <svg className="w-96 h-96 -rotate-90" viewBox="0 0 200 200">
                 <circle
                   cx="100"
                   cy="100"
@@ -375,10 +302,80 @@ export default function PomodoroTimer() {
                 />
               </svg>
               
-              {/* Timer Text */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="text-white text-7xl font-bold tracking-tight">
+              {/* Timer Content */}
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                {/* Streak Counter */}
+                <div className="text-white text-lg font-semibold mb-3">
+                  🔥 Streak: {streak}
+                </div>
+                
+                {/* Timer Text */}
+                <div className="text-white text-7xl font-bold tracking-tight mb-4">
                   {formatTime(timeLeft)}
+                </div>
+                
+                {/* Session Counter */}
+                <div className="text-white/60 text-sm mb-4">
+                  Session {currentSession} • {timerType === 'focus' ? 'Focus Time' : timerType === 'shortBreak' ? 'Short Break' : 'Long Break'}
+                </div>
+
+                {/* Session Indicators */}
+                <div className="flex gap-2">
+                  {[1, 2, 3, 4, 5, 6, 7, 8].map((step) => {
+                    // Determine if this is a focus session (odd numbers) or break (even numbers)
+                    const isFocusSession = step % 2 === 1
+                    const isShortBreak = step % 2 === 0 && step !== 8
+                    const isLongBreak = step === 8
+                    
+                    // Calculate current position in the cycle
+                    // For focus sessions: step 1,3,5,7 correspond to focus sessions 1,2,3,4
+                    // For breaks: step 2,4,6,8 correspond to breaks after sessions 1,2,3,4
+                    let currentStep
+                    if (timerType === 'focus') {
+                      currentStep = (sessions * 2) + 1 // Focus sessions are at odd steps
+                    } else {
+                      currentStep = sessions * 2 // Breaks are at even steps
+                    }
+                    const isCurrentStep = step === currentStep
+                    const isCompleted = step < currentStep
+                    
+                    let bgColor = 'bg-white/30' // Default (not reached)
+                    let additionalClasses = ''
+                    
+                    if (isCompleted) {
+                      if (isFocusSession) bgColor = 'bg-green-500' // Changed from white to green for completed focus sessions
+                      else if (isShortBreak) bgColor = 'bg-yellow-400'
+                      else if (isLongBreak) bgColor = 'bg-red-400'
+                    } else if (isCurrentStep) {
+                      if (isFocusSession) {
+                        bgColor = 'bg-blue-400'
+                        // Add blinking animation only when timer is actually running
+                        if (isActive) additionalClasses = 'animate-pulse'
+                      }
+                      else if (isShortBreak) {
+                        bgColor = 'bg-yellow-300'
+                        if (isActive) additionalClasses = 'animate-pulse'
+                      }
+                      else if (isLongBreak) {
+                        bgColor = 'bg-red-300'
+                        if (isActive) additionalClasses = 'animate-pulse'
+                      }
+                    }
+
+                    return (
+                      <div
+                        key={step}
+                        className={`w-3 h-3 rounded-full ${bgColor} ${additionalClasses} transition-colors duration-300`}
+                        title={
+                          isFocusSession 
+                            ? `Focus Session ${Math.ceil(step / 2)}`
+                            : isShortBreak 
+                            ? `Short Break ${step / 2}`
+                            : 'Long Break'
+                        }
+                      />
+                    )
+                  })}
                 </div>
               </div>
             </div>
