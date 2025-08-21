@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import SessionCards, { SessionData, TodoItem } from './components/SessionCards'
 import Hyperspeed from './components/Hyperspeed'
+import MusicPlayer from './components/MusicPlayer'
 
 type TimerType = 'focus' | 'shortBreak' | 'longBreak'
 
@@ -454,6 +455,9 @@ export default function PomodoroTimer() {
               isTimerActive={isActive}
             />
           </div>
+
+          {/* Music Player Section */}
+          <MusicPlayer />
         </div>
       </div>
     </div>
