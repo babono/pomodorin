@@ -3,7 +3,8 @@
 import { useState, useEffect, useRef } from 'react'
 import SessionCards, { SessionData, TodoItem } from './components/SessionCards'
 import Hyperspeed from './components/Hyperspeed'
-import MusicPlayer from './components/MusicPlayer'
+import AIQuoteGenerator, { AIQuoteGeneratorRef } from './components/AIQuoteGenerator'
+import ControlButtons from './components/ControlButtons'
 
 type TimerType = 'focus' | 'shortBreak' | 'longBreak'
 
@@ -22,6 +23,7 @@ export default function PomodoroTimer() {
   const [sessionData, setSessionData] = useState<SessionData[]>([])
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
   const [isLoaded, setIsLoaded] = useState(false)
+  const quoteGeneratorRef = useRef<AIQuoteGeneratorRef>(null)
 
   const timerConfig: TimerConfig = {
     focus: 25 * 60, // 25 minutes
@@ -269,7 +271,8 @@ export default function PomodoroTimer() {
         {/* Top Bar with Logo */}
         <div className="w-full">
           <div className="text-center py-6">
-            <h1 className="text-white text-5xl font-bold">POMODORIN</h1>
+            <h1 className="text-white text-5xl font-bold mb-6">POMODORIN</h1>
+            <AIQuoteGenerator ref={quoteGeneratorRef} />
           </div>
         </div>
         
@@ -456,8 +459,14 @@ export default function PomodoroTimer() {
             />
           </div>
 
-          {/* Music Player Section */}
-          <MusicPlayer />
+          {/* Control Buttons Section */}
+          <ControlButtons 
+            onGenerateQuote={() => {
+              if (quoteGeneratorRef.current) {
+                quoteGeneratorRef.current.generateNewQuote()
+              }
+            }} 
+          />
         </div>
       </div>
     </div>

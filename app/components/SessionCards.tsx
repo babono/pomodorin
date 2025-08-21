@@ -262,7 +262,7 @@ export default function SessionCards({
               {/* Empty State */}
               {!isFuture && session.todos.length === 0 && (
                 <div className="text-center py-4 text-gray-500 text-sm">
-                  No tasks yet. Add one above! ✨
+                  No tasks yet. Add one above!
                 </div>
               )}
 

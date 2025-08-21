@@ -37,22 +37,20 @@ export default function MusicPlayer() {
   }
 
   return (
-    <div className="flex justify-center pb-8">
-      <button
-        onClick={toggleMusic}
-        className="bg-pink-500 hover:bg-pink-600 text-white px-6 py-3 rounded-full font-bold transition-all duration-200 flex items-center gap-3 shadow-lg hover:shadow-pink-500/25"
-      >
-        <Image
-          src={isPlaying ? '/ic-pause.svg' : '/ic-play.svg'}
-          alt={isPlaying ? 'Pause' : 'Play'}
-          width={20}
-          height={20}
-          className="w-5 h-5"
-        />
-        <span className="text-base">
-          {isPlaying ? 'Pause Lofi' : 'Play Lofi'}
-        </span>
-      </button>
-    </div>
+    <button
+      onClick={toggleMusic}
+      className="bg-pink-500 hover:bg-pink-600 text-white px-6 py-3 rounded-full font-bold transition-all duration-200 flex items-center gap-3 shadow-lg hover:shadow-pink-500/25"
+    >
+      <Image
+        src={isPlaying ? '/ic-pause.svg' : '/ic-play.svg'}
+        alt={isPlaying ? 'Pause' : 'Play'}
+        width={20}
+        height={20}
+        className="w-5 h-5"
+      />
+      <span className="text-base">
+        {isPlaying ? 'Pause Lofi' : 'Play Lofi'}
+      </span>
+    </button>
   )
 }
