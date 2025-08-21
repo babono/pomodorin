@@ -1,5 +1,27 @@
 @import "tailwindcss";
 
+@theme {
+  --color-primary: #FFFFFF;
+  --color-secondary: #848487;
+  --color-foreground: #2E2E30;
+  --color-background: #000000;
+  --color-container-background: #17171A;
+  --color-light-container-background: #FCFCFF;
+  --color-component: #5F5F61;
+  --color-accent: #387AFF;
+  --color-camera-accent: #FFCB0C;
+  
+  /* Gradient Colors */
+  --color-gradient-start: #66A1F3;
+  --color-gradient-end: #22C9A6;
+  
+  /* Gradient Definitions */
+  --gradient-galaxy-ai: linear-gradient(135deg, #66A1F3 0%, #22C9A6 100%);
+  --gradient-galaxy-ai-vertical: linear-gradient(180deg, #66A1F3 0%, #22C9A6 100%);
+  --gradient-galaxy-ai-horizontal: linear-gradient(90deg, #66A1F3 0%, #22C9A6 100%);
+  --gradient-galaxy-ai-radial: radial-gradient(circle, #66A1F3 0%, #22C9A6 100%);
+}
+
 @font-face {
   font-family: 'Samsung One';
   src: url('/SamsungOne-400.woff2') format('woff2');

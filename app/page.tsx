@@ -17,8 +17,10 @@ export default function PomodoroTimer() {
   const [timeLeft, setTimeLeft] = useState(25 * 60) // 25 minutes in seconds
   const [isActive, setIsActive] = useState(false)
   const [sessions, setSessions] = useState(0)
+  const [streak, setStreak] = useState(0)
   const [sessionData, setSessionData] = useState<SessionData[]>([])
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
+  const [isLoaded, setIsLoaded] = useState(false)
 
   const timerConfig: TimerConfig = {
     focus: 25 * 60, // 25 minutes
@@ -32,6 +34,84 @@ export default function PomodoroTimer() {
     longBreak: 'Long Break',
   }
 
+  // Load data from localStorage on component mount
+  useEffect(() => {
+    const loadFromStorage = () => {
+      try {
+        const savedStreak = localStorage.getItem('pomodorin-streak')
+        const savedSessions = localStorage.getItem('pomodorin-sessions')
+        const savedSessionData = localStorage.getItem('pomodorin-session-data')
+        const savedTimerType = localStorage.getItem('pomodorin-timer-type')
+        
+        if (savedStreak) setStreak(parseInt(savedStreak, 10))
+        if (savedSessions) setSessions(parseInt(savedSessions, 10))
+        if (savedSessionData) {
+          const parsed = JSON.parse(savedSessionData)
+          // Convert date strings back to Date objects
+          const processedData = parsed.map((session: SessionData) => ({
+            ...session,
+            todos: session.todos.map((todo: TodoItem) => ({
+              ...todo,
+              createdAt: new Date(todo.createdAt)
+            }))
+          }))
+          setSessionData(processedData)
+        }
+        if (savedTimerType && ['focus', 'shortBreak', 'longBreak'].includes(savedTimerType)) {
+          setTimerType(savedTimerType as TimerType)
+          setTimeLeft(timerConfig[savedTimerType as TimerType])
+        }
+      } catch (error) {
+        console.error('Error loading from localStorage:', error)
+      } finally {
+        setIsLoaded(true)
+      }
+    }
+
+    loadFromStorage()
+  }, [])
+
+  // Save to localStorage whenever state changes
+  useEffect(() => {
+    if (!isLoaded) return // Don't save during initial load
+    
+    try {
+      localStorage.setItem('pomodorin-streak', streak.toString())
+    } catch (error) {
+      console.error('Error saving streak to localStorage:', error)
+    }
+  }, [streak, isLoaded])
+
+  useEffect(() => {
+    if (!isLoaded) return
+    
+    try {
+      localStorage.setItem('pomodorin-sessions', sessions.toString())
+    } catch (error) {
+      console.error('Error saving sessions to localStorage:', error)
+    }
+  }, [sessions, isLoaded])
+
+  useEffect(() => {
+    if (!isLoaded) return
+    
+    try {
+      localStorage.setItem('pomodorin-session-data', JSON.stringify(sessionData))
+    } catch (error) {
+      console.error('Error saving session data to localStorage:', error)
+    }
+  }, [sessionData, isLoaded])
+
+  useEffect(() => {
+    if (!isLoaded) return
+    
+    try {
+      localStorage.setItem('pomodorin-timer-type', timerType)
+    } catch (error) {
+      console.error('Error saving timer type to localStorage:', error)
+    }
+  }, [timerType, isLoaded])
+
   useEffect(() => {
     if (isActive && timeLeft > 0) {
       intervalRef.current = setInterval(() => {
@@ -44,7 +124,15 @@ export default function PomodoroTimer() {
               const nextType = (sessions + 1) % 4 === 0 ? 'longBreak' : 'shortBreak'
               setTimerType(nextType)
               return timerConfig[nextType]
+            } else if (timerType === 'longBreak') {
+              // After long break, complete the cycle and restart
+              setStreak(prev => prev + 1)
+              setSessions(0) // Reset sessions to 0 for new cycle
+              setSessionData([]) // Clear all session notes and todos
+              setTimerType('focus')
+              return timerConfig.focus
             } else {
+              // After short break, go to next focus session
               setTimerType('focus')
               return timerConfig.focus
             }
@@ -78,6 +166,28 @@ export default function PomodoroTimer() {
     setTimeLeft(timerConfig[timerType])
   }
 
+  const handleSkip = () => {
+    setIsActive(false)
+    // Skip to next phase
+    if (timerType === 'focus') {
+      setSessions(prev => prev + 1)
+      const nextType = (sessions + 1) % 4 === 0 ? 'longBreak' : 'shortBreak'
+      setTimerType(nextType)
+      setTimeLeft(timerConfig[nextType])
+    } else if (timerType === 'longBreak') {
+      // After long break, complete the cycle and restart
+      setStreak(prev => prev + 1)
+      setSessions(0) // Reset sessions to 0 for new cycle
+      setSessionData([]) // Clear all session notes and todos
+      setTimerType('focus')
+      setTimeLeft(timerConfig.focus)
+    } else {
+      // After short break, go to next focus session
+      setTimerType('focus')
+      setTimeLeft(timerConfig.focus)
+    }
+  }
+
   const handleUpdateSession = (sessionNumber: number, todos: TodoItem[]) => {
     setSessionData(prevData => {
       const existingSessionIndex = prevData.findIndex(s => s.sessionNumber === sessionNumber)
@@ -108,79 +218,138 @@ export default function PomodoroTimer() {
     })
   }
 
-  const progress = ((timerConfig[timerType] - timeLeft) / timerConfig[timerType]) * 100
-  const currentSession = sessions + 1
+  const handleResetProgress = () => {
+    if (confirm('Are you sure you want to reset all progress? This will clear your streak, sessions, and all notes.')) {
+      try {
+        // Clear localStorage
+        localStorage.removeItem('pomodorin-streak')
+        localStorage.removeItem('pomodorin-sessions')
+        localStorage.removeItem('pomodorin-session-data')
+        localStorage.removeItem('pomodorin-timer-type')
+        
+        // Reset state
+        setStreak(0)
+        setSessions(0)
+        setSessionData([])
+        setTimerType('focus')
+        setTimeLeft(timerConfig.focus)
+        setIsActive(false)
+      } catch (error) {
+        console.error('Error resetting progress:', error)
+      }
+    }
+  }
+
+  const progress = (timeLeft / timerConfig[timerType]) * 100
+  // Calculate current session display based on timer type
+  const currentSession = timerType === 'focus' ? sessions + 1 : sessions
+  
+  // Get progress circle color based on timer type
+  const getProgressColor = () => {
+    switch (timerType) {
+      case 'focus':
+        return 'rgba(56, 122, 255, 1)' // Blue (matches bg-blue-400)
+      case 'shortBreak':
+        return 'rgba(251, 191, 36, 0.8)' // Yellow (matches bg-yellow-400)
+      case 'longBreak':
+        return 'rgba(248, 113, 113, 0.8)' // Red (matches bg-red-400)
+      default:
+        return 'rgba(255, 255, 255, 0.8)' // Fallback white
+    }
+  }
 
   return (
     <div className="min-h-screen relative overflow-hidden">
       {/* Hyperspeed Background */}
       <Hyperspeed isTimerRunning={isActive && timerType === 'focus'} />
       
-      {/* Content */}
-      <div className="relative z-10 min-h-screen flex flex-col">
-        {/* Main Timer Section */}
-        <div className="flex-1 flex items-center justify-center p-4">
-        <div className="max-w-md w-full">
-          {/* Header */}
-          <div className="text-center mb-8">
-            <div className="flex items-center justify-between mb-8">
-              <div className="text-white/90">
-                <div className="text-2xl font-bold">flocus</div>
-                <div className="text-sm opacity-75">by SIDFIT</div>
-              </div>
-              <div className="text-white/70 text-right">
-                <div className="text-lg font-medium">"What lasts long won't</div>
-                <div className="text-lg font-medium">come easy"</div>
+      {/* Top Bar with Logo */}
+      <div className="relative z-10 w-full">
+        <div className="text-center py-6">
+          <h1 className="text-white text-5xl font-bold">POMODORIN</h1>
+        </div>
+      </div>
+      
+      {/* Main Content */}
+      <div className="relative z-10 flex flex-col">
+        {/* Timer Section */}
+        <div className="flex items-center justify-center p-4">
+          <div className="max-w-md w-full">
+            {/* Streak Counter */}
+            <div className="text-center mb-4 text-white">
+              <div className="text-lg font-semibold">
+                🔥 Streak: {streak}
               </div>
             </div>
 
-            <h1 className="text-white text-2xl font-medium mb-8">
-              What do you want to focus on? ✏️
-            </h1>
+            {/* Session Counter */}
+            <div className="text-center mb-2 text-white/60">
+              <div className="text-sm">
+                Session {currentSession} • {timerType === 'focus' ? 'Focus Time' : timerType === 'shortBreak' ? 'Short Break' : 'Long Break'}
+              </div>
+            </div>
 
             {/* Session Indicators - Shows 4 focus sessions, 3 short breaks, and 1 long break */}
-            <div className="flex justify-center gap-2 mb-8">
-              {[1, 2, 3, 4, 5, 6, 7, 8].map((step) => {
-                // Determine if this is a focus session (odd numbers) or break (even numbers)
-                const isFocusSession = step % 2 === 1
-                const isShortBreak = step % 2 === 0 && step !== 8
-                const isLongBreak = step === 8
-                
-                // Calculate current position in the cycle
-                const currentStep = sessions * 2 + (timerType === 'focus' ? 1 : 2)
-                const isActive = step === currentStep
-                const isCompleted = step < currentStep
-                
-                let bgColor = 'bg-white/30' // Default (not reached)
-                if (isCompleted) {
-                  if (isFocusSession) bgColor = 'bg-white'
-                  else if (isShortBreak) bgColor = 'bg-yellow-400'
-                  else if (isLongBreak) bgColor = 'bg-red-400'
-                } else if (isActive) {
-                  if (isFocusSession) bgColor = 'bg-blue-400'
-                  else if (isShortBreak) bgColor = 'bg-yellow-300'
-                  else if (isLongBreak) bgColor = 'bg-red-300'
+          <div className="flex justify-center gap-2 mb-8">
+            {[1, 2, 3, 4, 5, 6, 7, 8].map((step) => {
+              // Determine if this is a focus session (odd numbers) or break (even numbers)
+              const isFocusSession = step % 2 === 1
+              const isShortBreak = step % 2 === 0 && step !== 8
+              const isLongBreak = step === 8
+              
+              // Calculate current position in the cycle
+              // For focus sessions: step 1,3,5,7 correspond to focus sessions 1,2,3,4
+              // For breaks: step 2,4,6,8 correspond to breaks after sessions 1,2,3,4
+              let currentStep
+              if (timerType === 'focus') {
+                currentStep = (sessions * 2) + 1 // Focus sessions are at odd steps
+              } else {
+                currentStep = sessions * 2 // Breaks are at even steps
+              }
+              const isCurrentStep = step === currentStep
+              const isCompleted = step < currentStep
+              
+              let bgColor = 'bg-white/30' // Default (not reached)
+              let additionalClasses = ''
+              
+              if (isCompleted) {
+                if (isFocusSession) bgColor = 'bg-green-500' // Changed from white to green for completed focus sessions
+                else if (isShortBreak) bgColor = 'bg-yellow-400'
+                else if (isLongBreak) bgColor = 'bg-red-400'
+              } else if (isCurrentStep) {
+                if (isFocusSession) {
+                  bgColor = 'bg-blue-400'
+                  // Add blinking animation only when timer is actually running
+                  if (isActive) additionalClasses = 'animate-pulse'
                 }
+                else if (isShortBreak) {
+                  bgColor = 'bg-yellow-300'
+                  if (isActive) additionalClasses = 'animate-pulse'
+                }
+                else if (isLongBreak) {
+                  bgColor = 'bg-red-300'
+                  if (isActive) additionalClasses = 'animate-pulse'
+                }
+              }
 
-                return (
-                  <div
-                    key={step}
-                    className={`w-3 h-3 rounded-full ${bgColor} transition-colors duration-300`}
-                    title={
-                      isFocusSession 
-                        ? `Focus Session ${Math.ceil(step / 2)}`
-                        : isShortBreak 
-                        ? `Short Break ${step / 2}`
-                        : 'Long Break'
-                    }
-                  />
-                )
-              })}
-            </div>
+              return (
+                <div
+                  key={step}
+                  className={`w-3 h-3 rounded-full ${bgColor} ${additionalClasses} transition-colors duration-300`}
+                  title={
+                    isFocusSession 
+                      ? `Focus Session ${Math.ceil(step / 2)}`
+                      : isShortBreak 
+                      ? `Short Break ${step / 2}`
+                      : 'Long Break'
+                  }
+                />
+              )
+            })}
           </div>
 
           {/* Timer Display */}
-          <div className="text-center mb-12">
+          <div className="text-center mb-4">
             <div className="relative inline-block">
               {/* Progress Ring */}
               <svg className="w-80 h-80 -rotate-90" viewBox="0 0 200 200">
@@ -196,7 +365,7 @@ export default function PomodoroTimer() {
                   cx="100"
                   cy="100"
                   r="90"
-                  stroke="rgba(255,255,255,0.8)"
+                  stroke={getProgressColor()}
                   strokeWidth="4"
                   fill="none"
                   strokeLinecap="round"
@@ -208,7 +377,7 @@ export default function PomodoroTimer() {
               
               {/* Timer Text */}
               <div className="absolute inset-0 flex items-center justify-center">
-                <div className="text-white text-8xl font-light tracking-tight">
+                <div className="text-white text-7xl font-bold tracking-tight">
                   {formatTime(timeLeft)}
                 </div>
               </div>
@@ -221,16 +390,16 @@ export default function PomodoroTimer() {
               // Default state - only Start button
               <button
                 onClick={handleStart}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-medium transition-colors duration-200"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-full font-bold transition-colors duration-200"
               >
                 Start
               </button>
             ) : (
-              // Timer is running or paused - show Stop and Pause/Resume buttons
+              // Timer is running or paused - show Stop, Pause/Resume, and Skip buttons
               <>
                 <button
                   onClick={handleReset}
-                  className="bg-gray-600 hover:bg-gray-700 text-white px-8 py-3 rounded-lg font-medium transition-colors duration-200"
+                  className="bg-gray-600 hover:bg-gray-700 text-white px-8 py-3 rounded-full font-bold transition-colors duration-200"
                 >
                   Stop
                 </button>
@@ -241,22 +410,22 @@ export default function PomodoroTimer() {
                     isActive 
                       ? 'bg-red-600 hover:bg-red-700' 
                       : 'bg-blue-600 hover:bg-blue-700'
-                  } text-white px-8 py-3 rounded-lg font-medium transition-colors duration-200`}
+                  } text-white px-8 py-3 rounded-full font-bold transition-colors duration-200`}
                 >
                   {isActive ? 'Pause' : 'Resume'}
                 </button>
+
+                <button
+                  onClick={handleSkip}
+                  className="bg-camera-accent hover:bg-camera-accent/80 text-black px-8 py-3 rounded-full font-bold transition-colors duration-200"
+                >
+                  Skip
+                </button>
               </>
             )}
-          </div>
-
-          {/* Session Counter */}
-          <div className="text-center mt-8 text-white/60">
-            <div className="text-sm">
-              Session {currentSession} • {timerType === 'focus' ? 'Focus Time' : timerType === 'shortBreak' ? 'Short Break' : 'Long Break'}
-            </div>
+          </div>          
           </div>
         </div>
-      </div>
 
         {/* Session Cards Section */}
         <div className="pb-8">
@@ -265,6 +434,7 @@ export default function PomodoroTimer() {
             sessions={sessionData}
             onUpdateSession={handleUpdateSession}
             onCompleteSession={handleCompleteSession}
+            isTimerActive={isActive}
           />
         </div>
       </div>

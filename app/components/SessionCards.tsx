@@ -20,13 +20,15 @@ interface SessionCardsProps {
   sessions: SessionData[]
   onUpdateSession: (sessionNumber: number, todos: TodoItem[]) => void
   onCompleteSession: (sessionNumber: number) => void
+  isTimerActive: boolean
 }
 
 export default function SessionCards({ 
   currentSession, 
   sessions, 
   onUpdateSession,
-  onCompleteSession 
+  onCompleteSession,
+  isTimerActive
 }: SessionCardsProps) {
   const [newTodos, setNewTodos] = useState<{ [key: number]: string }>({})
 
@@ -85,8 +87,8 @@ export default function SessionCards({
 
   return (
     <div className="w-full max-w-6xl mx-auto p-4">
-      <h3 className="text-white text-xl font-medium text-center mb-6">
-        Focus Sessions 🍅
+      <h3 className="text-white text-xl font-bold text-center mb-6">
+        Focus Sessions Task List
       </h3>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -102,15 +104,16 @@ export default function SessionCards({
             <div
               key={sessionNumber}
               className={`
-                relative p-4 rounded-lg border backdrop-blur-md transition-all duration-300
-                ${isActive 
-                  ? 'bg-blue-600/20 border-blue-400/50 shadow-lg shadow-blue-500/20' 
-                  : isPast
-                  ? 'bg-green-600/10 border-green-400/30'
-                  : 'bg-white/10 border-white/20'
+                relative p-4 rounded-lg border transition-all duration-300 shadow-lg
+                ${isFuture 
+                  ? 'bg-container-background/60 backdrop-blur-sm border-container-background text-white' 
+                  : 'bg-container-background border-container-background text-white'
                 }
-                ${isFuture ? 'opacity-60' : ''}
-                hover:scale-105 hover:bg-opacity-80
+                ${isActive 
+                  ? 'ring-2 ring-accent shadow-lg shadow-accent/20' 
+                  : ''
+                }
+                hover:scale-105 hover:shadow-lg
               `}
             >
               {/* Session Header */}
@@ -118,16 +121,17 @@ export default function SessionCards({
                 <div className="flex items-center gap-2">
                   <div className={`
                     w-3 h-3 rounded-full
-                    ${isActive ? 'bg-blue-400 animate-pulse' 
-                      : isPast ? 'bg-green-400' 
-                      : 'bg-white/30'}
+                    ${isActive ? 'bg-blue-500' : isPast ? 'bg-green-500' : isFuture ? 'bg-gray-500' : 'bg-gray-400'}
+                    ${isActive && isTimerActive ? 'animate-pulse' : ''}
                   `} />
-                  <h4 className="text-white font-medium">
+                  <h4>
                     Session {sessionNumber}
                   </h4>
                 </div>
                 {totalCount > 0 && (
-                  <div className="text-white/60 text-sm">
+                  <div className={`text-sm ${
+                    isFuture ? 'text-gray-500' : 'text-gray-600'
+                  }`}>
                     {completedCount}/{totalCount}
                   </div>
                 )}
@@ -136,10 +140,12 @@ export default function SessionCards({
               {/* Progress Bar */}
               {totalCount > 0 && (
                 <div className="mb-4">
-                  <div className="w-full bg-white/20 rounded-full h-2">
+                  <div className={`w-full rounded-full h-2 ${
+                    isFuture ? 'bg-gray-700' : 'bg-foreground'
+                  }`}>
                     <div
                       className={`h-2 rounded-full transition-all duration-300 ${
-                        isActive ? 'bg-blue-400' : 'bg-green-400'
+                        isActive ? 'bg-primary' : isPast ? 'bg-green-500' : 'bg-primary'
                       }`}
                       style={{ width: `${(completedCount / totalCount) * 100}%` }}
                     />
@@ -150,25 +156,33 @@ export default function SessionCards({
               {/* Add Todo Input */}
               {!isFuture && (
                 <div className="mb-4">
-                  <div className="flex gap-2">
+                  <div className="flex items-center gap-3">
                     <input
                       type="text"
-                      placeholder="Add focus task..."
+                      placeholder="Type your task"
                       value={newTodos[sessionNumber] || ''}
                       onChange={(e) => setNewTodos({ 
                         ...newTodos, 
                         [sessionNumber]: e.target.value 
                       })}
                       onKeyPress={(e) => handleKeyPress(e, sessionNumber)}
-                      className="flex-1 px-3 py-2 bg-white/10 border border-white/30 rounded-md text-white text-sm placeholder-white/60 focus:outline-none focus:border-blue-400"
+                      className={`flex-1 px-4 py-2 rounded-full text-sm focus:outline-none transition-all duration-200 ${
+                        isFuture 
+                          ? 'bg-foreground border border-gray-600 text-secondary placeholder-gray-500' 
+                          : 'bg-foreground border border-gray-600 text-secondary placeholder-gray-400 focus:border-component'
+                      }`}
                       disabled={isFuture}
                     />
                     <button
                       onClick={() => handleAddTodo(sessionNumber)}
-                      className="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-200 text-sm"
+                      className="w-10 h-10 bg-foreground text-white rounded-full transition-colors duration-200 flex items-center justify-center disabled:opacity-50 hover:bg-component"
                       disabled={!newTodos[sessionNumber]?.trim()}
                     >
-                      +
+                      <img 
+                        src="/ic-add.svg" 
+                        alt="Add" 
+                        className="w-5 h-5"
+                      />
                     </button>
                   </div>
                 </div>
@@ -182,10 +196,14 @@ export default function SessionCards({
                     className={`
                       flex items-center gap-2 p-2 rounded-md transition-all duration-200
                       ${todo.completed 
-                        ? 'bg-green-600/20 border border-green-400/30' 
-                        : 'bg-white/5 border border-white/20'
+                        ? isFuture
+                          ? 'bg-container-background border border-gray-600' 
+                          : 'bg-component border border-green-200'
+                        : isFuture
+                        ? 'bg-container-background border border-gray-700'
+                        : 'bg-foreground border border-gray-200'
                       }
-                      hover:bg-white/10
+                      ${isFuture ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}
                     `}
                   >
                     <button
@@ -194,7 +212,9 @@ export default function SessionCards({
                         w-4 h-4 rounded border-2 flex items-center justify-center transition-all duration-200
                         ${todo.completed
                           ? 'bg-green-500 border-green-500'
-                          : 'border-white/40 hover:border-white/60'
+                          : isFuture
+                          ? 'border-gray-500 hover:border-gray-400'
+                          : 'border-gray-400 hover:border-gray-500'
                         }
                       `}
                     >
@@ -206,15 +226,20 @@ export default function SessionCards({
                     </button>
                     
                     <span className={`
-                      flex-1 text-white text-sm transition-all duration-200
+                      flex-1 text-sm transition-all duration-200
                       ${todo.completed ? 'line-through opacity-60' : ''}
+                      ${isFuture ? 'text-black' : 'text-primary'}
                     `}>
                       {todo.text}
                     </span>
                     
                     <button
                       onClick={() => handleDeleteTodo(sessionNumber, todo.id)}
-                      className="text-white/40 hover:text-red-400 transition-colors duration-200"
+                      className={`transition-colors duration-200 ${
+                        isFuture 
+                          ? 'text-gray-500 hover:text-red-400' 
+                          : 'text-gray-400 hover:text-red-500'
+                      }`}
                     >
                       <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -226,7 +251,7 @@ export default function SessionCards({
 
               {/* Future Session Indicator */}
               {isFuture && session.todos.length === 0 && (
-                <div className="text-center py-6 text-white/40 text-sm">
+                <div className="text-center py-6 text-gray-500 text-sm">
                   <div className="mb-2">🔒</div>
                   <div>Complete Session {currentSession} first</div>
                 </div>
@@ -234,7 +259,7 @@ export default function SessionCards({
 
               {/* Empty State */}
               {!isFuture && session.todos.length === 0 && (
-                <div className="text-center py-4 text-white/50 text-sm">
+                <div className="text-center py-4 text-gray-500 text-sm">
                   No tasks yet. Add one above! ✨
                 </div>
               )}
