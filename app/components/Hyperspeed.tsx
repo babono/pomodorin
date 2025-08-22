@@ -725,7 +725,13 @@ function resizeRendererToDisplaySize(
   const canvas = renderer.domElement;
   const width = canvas.clientWidth || window.innerWidth;
   const height = canvas.clientHeight || window.innerHeight;
-  const needResize = canvas.width !== width || canvas.height !== height;
+  
+  // Use device pixel ratio for more accurate size comparison
+  const pixelRatio = window.devicePixelRatio;
+  const needResize = 
+    Math.abs(canvas.width - width * pixelRatio) > 1 || 
+    Math.abs(canvas.height - height * pixelRatio) > 1;
+    
   if (needResize) {
     setSize(width, height, false);
   }
@@ -761,16 +767,17 @@ class App {
     }
     this.container = container;
 
-    // Get proper dimensions, fallback to window size if container not ready
-    const width = container.offsetWidth || window.innerWidth;
-    const height = container.offsetHeight || window.innerHeight;
+    // Get proper dimensions with better fallbacks
+    const containerRect = container.getBoundingClientRect();
+    const width = containerRect.width || container.offsetWidth || window.innerWidth;
+    const height = containerRect.height || container.offsetHeight || window.innerHeight;
 
     this.renderer = new THREE.WebGLRenderer({
       antialias: false,
       alpha: true,
     });
     this.renderer.setSize(width, height, false);
-    this.renderer.setPixelRatio(window.devicePixelRatio);
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Cap pixel ratio to prevent performance issues
 
     this.composer = new EffectComposer(this.renderer);
     container.appendChild(this.renderer.domElement);
@@ -835,13 +842,22 @@ class App {
   }
 
   onWindowResize() {
-    const width = this.container.offsetWidth || window.innerWidth;
-    const height = this.container.offsetHeight || window.innerHeight;
+    if (this.disposed) return;
+    
+    const containerRect = this.container.getBoundingClientRect();
+    const width = containerRect.width || this.container.offsetWidth || window.innerWidth;
+    const height = containerRect.height || this.container.offsetHeight || window.innerHeight;
 
-    this.renderer.setSize(width, height);
-    this.camera.aspect = width / height;
-    this.camera.updateProjectionMatrix();
-    this.composer.setSize(width, height);
+    // Only resize if dimensions actually changed significantly
+    const currentWidth = this.renderer.domElement.clientWidth;
+    const currentHeight = this.renderer.domElement.clientHeight;
+    
+    if (Math.abs(currentWidth - width) > 1 || Math.abs(currentHeight - height) > 1) {
+      this.renderer.setSize(width, height);
+      this.camera.aspect = width / height;
+      this.camera.updateProjectionMatrix();
+      this.composer.setSize(width, height);
+    }
   }
 
   initPasses() {
@@ -1027,27 +1043,31 @@ const Hyperspeed: FC<HyperspeedProps> = ({ isTimerRunning = false, effectOptions
   const hyperspeed = useRef<HTMLDivElement>(null);
   const appRef = useRef<App | null>(null);
   const isTimerRunningRef = useRef(isTimerRunning);
+  const effectOptionsRef = useRef(effectOptions);
 
-  // Update ref without causing re-renders
+  // Update refs without causing re-renders
   isTimerRunningRef.current = isTimerRunning;
+  effectOptionsRef.current = effectOptions;
 
   useEffect(() => {
     const container = hyperspeed.current;
     if (!container) return;
 
-    // Create merged options inside useEffect to avoid dependency
+    // Create merged options using refs to avoid recreating scene
     const mergedOptions: HyperspeedOptions = {
       ...presetOne,
-      ...effectOptions,
+      ...effectOptionsRef.current,
     };
 
     // Add a small delay to ensure container is properly sized
     const initializeScene = () => {
-      // Ensure container has dimensions
-      if (container.offsetWidth === 0 || container.offsetHeight === 0) {
-        // Try again in the next frame if container isn't ready
-        requestAnimationFrame(initializeScene);
-        return;
+      // Get container dimensions with fallbacks
+      const width = container.offsetWidth || container.clientWidth || 800;
+      const height = container.offsetHeight || container.clientHeight || 600;
+      
+      // Ensure we have reasonable dimensions before proceeding
+      if (width < 10 || height < 10) {
+        console.warn('Hyperspeed container too small, using fallback dimensions');
       }
 
       // Only create the scene once
@@ -1067,19 +1087,16 @@ const Hyperspeed: FC<HyperspeedProps> = ({ isTimerRunning = false, effectOptions
       myApp.loadAssets().then(myApp.init);
     };
 
-    // Use requestAnimationFrame to ensure DOM is ready
-    const timeoutId = setTimeout(() => {
-      requestAnimationFrame(initializeScene);
-    }, 10);
+    // Initialize immediately without delay
+    requestAnimationFrame(initializeScene);
 
     return () => {
-      clearTimeout(timeoutId);
       if (appRef.current) {
         appRef.current.dispose();
         appRef.current = null;
       }
     };
-  }, [effectOptions]); // Include effectOptions in dependency array
+  }, []); // Remove effectOptions from dependency array
 
   // Effect to handle timer-based speed changes without re-rendering the scene
   useEffect(() => {
