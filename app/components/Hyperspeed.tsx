@@ -723,8 +723,8 @@ function resizeRendererToDisplaySize(
   setSize: (width: number, height: number, updateStyle: boolean) => void
 ) {
   const canvas = renderer.domElement;
-  const width = canvas.clientWidth;
-  const height = canvas.clientHeight;
+  const width = canvas.clientWidth || window.innerWidth;
+  const height = canvas.clientHeight || window.innerHeight;
   const needResize = canvas.width !== width || canvas.height !== height;
   if (needResize) {
     setSize(width, height, false);
@@ -761,11 +761,15 @@ class App {
     }
     this.container = container;
 
+    // Get proper dimensions, fallback to window size if container not ready
+    const width = container.offsetWidth || window.innerWidth;
+    const height = container.offsetHeight || window.innerHeight;
+
     this.renderer = new THREE.WebGLRenderer({
       antialias: false,
       alpha: true,
     });
-    this.renderer.setSize(container.offsetWidth, container.offsetHeight, false);
+    this.renderer.setSize(width, height, false);
     this.renderer.setPixelRatio(window.devicePixelRatio);
 
     this.composer = new EffectComposer(this.renderer);
@@ -773,7 +777,7 @@ class App {
 
     this.camera = new THREE.PerspectiveCamera(
       options.fov,
-      container.offsetWidth / container.offsetHeight,
+      width / height,
       0.1,
       10000
     );
@@ -831,8 +835,8 @@ class App {
   }
 
   onWindowResize() {
-    const width = this.container.offsetWidth;
-    const height = this.container.offsetHeight;
+    const width = this.container.offsetWidth || window.innerWidth;
+    const height = this.container.offsetHeight || window.innerHeight;
 
     this.renderer.setSize(width, height);
     this.camera.aspect = width / height;
@@ -1037,23 +1041,39 @@ const Hyperspeed: FC<HyperspeedProps> = ({ isTimerRunning = false, effectOptions
       ...effectOptions,
     };
 
-    // Only create the scene once
-    const options = { ...mergedOptions };
-    if (typeof options.distortion === "string") {
-      options.distortion = distortions[options.distortion];
-    }
+    // Add a small delay to ensure container is properly sized
+    const initializeScene = () => {
+      // Ensure container has dimensions
+      if (container.offsetWidth === 0 || container.offsetHeight === 0) {
+        // Try again in the next frame if container isn't ready
+        requestAnimationFrame(initializeScene);
+        return;
+      }
 
-    const myApp = new App(container, options);
-    appRef.current = myApp;
-    
-    // Set initial speed based on timer state
-    if (isTimerRunningRef.current) {
-      myApp.triggerSpeedUp();
-    }
-    
-    myApp.loadAssets().then(myApp.init);
+      // Only create the scene once
+      const options = { ...mergedOptions };
+      if (typeof options.distortion === "string") {
+        options.distortion = distortions[options.distortion];
+      }
+
+      const myApp = new App(container, options);
+      appRef.current = myApp;
+      
+      // Set initial speed based on timer state
+      if (isTimerRunningRef.current) {
+        myApp.triggerSpeedUp();
+      }
+      
+      myApp.loadAssets().then(myApp.init);
+    };
+
+    // Use requestAnimationFrame to ensure DOM is ready
+    const timeoutId = setTimeout(() => {
+      requestAnimationFrame(initializeScene);
+    }, 10);
 
     return () => {
+      clearTimeout(timeoutId);
       if (appRef.current) {
         appRef.current.dispose();
         appRef.current = null;

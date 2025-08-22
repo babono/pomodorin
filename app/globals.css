@@ -55,6 +55,12 @@ body {
   opacity: 0.3;
 }
 
+#lights canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
 .animated-background {
     background-size: 400%;
     -webkit-animation: animation 3s ease infinite;

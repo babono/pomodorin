@@ -271,8 +271,8 @@ export default function PomodoroTimer() {
       <div className="relative z-10 min-h-screen flex flex-col justify-center">
         {/* Top Bar with Logo */}
         <div className="w-full">
-          <div className="text-center py-6">
-            <h1 className="text-white text-5xl font-bold mb-6">POMODORIN</h1>
+          <div className="text-center py-4 sm:py-6 px-4">
+            <h1 className="text-white text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6">POMODORIN</h1>
             <AIQuoteGenerator ref={quoteGeneratorRef} />
           </div>
         </div>
@@ -289,12 +289,12 @@ export default function PomodoroTimer() {
         <div className="flex flex-col flex-1 justify-center">
         {/* Timer Section */}
         <div className="flex items-center justify-center p-4">
-          <div className="max-w-md w-full">
+          <div className="max-w-md w-full px-4">
           {/* Timer Display */}
           <div className="text-center mb-4">
-            <div className="relative inline-block">
+            <div className="relative flex justify-center w-full">
               {/* Progress Ring */}
-              <svg className="w-96 h-96 -rotate-90" viewBox="0 0 200 200">
+              <svg className="w-72 h-72 sm:w-80 sm:h-80 md:w-96 md:h-96 -rotate-90 max-w-full" viewBox="0 0 200 200">
                 <circle
                   cx="100"
                   cy="100"
@@ -320,26 +320,26 @@ export default function PomodoroTimer() {
               {/* Timer Content */}
               <div className="absolute inset-0 flex flex-col items-center justify-center">
                 {/* Streak Counter */}
-                <div className="text-white text-lg font-semibold mb-3 flex items-center gap-2">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <div className="text-white text-sm sm:text-base md:text-lg font-semibold mb-2 sm:mb-3 flex items-center gap-2">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="sm:w-5 sm:h-5">
                     <path fillRule="evenodd" clipRule="evenodd" d="M17.1085 5H19.5755C19.9895 5 20.3255 4.664 20.3255 4.25C20.3255 3.836 19.9895 3.5 19.5755 3.5H14.8955C14.2115 3.5 13.6545 4.057 13.6545 4.742V9.16C13.6545 9.574 13.9895 9.91 14.4045 9.91C14.8185 9.91 15.1545 9.574 15.1545 9.16V5.563C17.5645 6.756 19.1095 9.215 19.1095 11.912C19.1095 15.82 15.9205 19 11.9995 19C8.0805 19 4.8905 15.82 4.8905 11.912C4.8905 8.659 7.0975 5.832 10.2565 5.038C10.6585 4.938 10.9025 4.529 10.8005 4.128C10.7005 3.727 10.2915 3.482 9.8905 3.583C6.0635 4.546 3.3905 7.971 3.3905 11.912C3.3905 16.647 7.2535 20.5 11.9995 20.5C16.7475 20.5 20.6095 16.647 20.6095 11.912C20.6095 9.154 19.2785 6.599 17.1085 5Z" fill="currentColor"/>
                   </svg>
                   Cycle Count: {streak}
                 </div>
                 
                 {/* Timer Text */}
-                <div className="text-white text-7xl font-bold tracking-tight mb-4">
+                <div className="text-white text-5xl sm:text-6xl md:text-7xl font-bold tracking-tight mb-3 sm:mb-4">
                   {formatTime(timeLeft)}
                 </div>
                 
                 {/* Session Counter */}
-                <div className="text-white/60 text-sm mb-4">
+                <div className="text-white/60 text-xs sm:text-sm mb-3 sm:mb-4">
                   Session {currentSession} • {timerType === 'focus' ? 'Focus Time' : timerType === 'shortBreak' ? 'Short Break' : 'Long Break'}
                 </div>
 
                 {/* Session Indicators */}
-                <div className="flex flex-col items-center gap-3">
-                  <div className="flex gap-2">
+                <div className="flex flex-col items-center gap-2 sm:gap-3">
+                  <div className="flex gap-1 sm:gap-2">
                     {[1, 2, 3, 4, 5, 6, 7, 8].map((step) => {
                       // Determine if this is a focus session (odd numbers) or break (even numbers)
                       const isFocusSession = step % 2 === 1
@@ -395,7 +395,7 @@ export default function PomodoroTimer() {
                           placement="bottom"
                         >
                           <div
-                            className={`w-3 h-3 rounded-full ${bgColor} ${additionalClasses} transition-colors duration-300 cursor-help`}
+                            className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full ${bgColor} ${additionalClasses} transition-colors duration-300 cursor-help`}
                           />
                         </Tooltip>
                       )
@@ -405,11 +405,11 @@ export default function PomodoroTimer() {
                   {/* Current Session Icon */}
                   <div className="flex items-center justify-center">
                     {timerType === 'focus' ? (
-                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="sm:w-7 sm:h-7">
                         <path d="M12.153 3.24991V5.16091M12.153 19.1454V21.0564M21.0558 12.1532H19.1458M5.16031 12.1532H3.25031M12.153 5.15321C16.019 5.15321 19.153 8.28721 19.153 12.1532C19.153 16.0182 16.019 19.1532 12.153 19.1532C8.28701 19.1532 5.15301 16.0182 5.15301 12.1532C5.15301 8.28721 8.28701 5.15321 12.153 5.15321ZM12.153 9.02821C10.427 9.02821 9.02801 10.4272 9.02801 12.1532C9.02801 13.8792 10.427 15.2782 12.153 15.2782C13.879 15.2782 15.278 13.8792 15.278 12.1532C15.278 10.4272 13.879 9.02821 12.153 9.02821Z" stroke="rgba(255,255,255,0.7)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                       </svg>
                     ) : (
-                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="sm:w-7 sm:h-7">
                         <path d="M12 7.5957V11.3657C12 11.6457 12.227 11.8737 12.507 11.8737H15.576M20.5 12C20.5 7.305 16.695 3.5 12 3.5C7.306 3.5 3.5 7.305 3.5 12C3.5 16.695 7.306 20.5 12 20.5C16.695 20.5 20.5 16.695 20.5 12Z" stroke="rgba(255,255,255,0.7)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                       </svg>
                     )}
@@ -420,12 +420,12 @@ export default function PomodoroTimer() {
           </div>
 
           {/* Control Buttons */}
-          <div className="flex justify-center gap-4">
+          <div className="flex justify-center gap-2 sm:gap-4 px-4">
             {!isActive && timeLeft === timerConfig[timerType] ? (
               // Default state - only Start button
               <button
                 onClick={handleStart}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-full font-bold transition-colors duration-200"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 sm:px-8 py-2 sm:py-3 rounded-full font-bold transition-colors duration-200 text-sm sm:text-base"
               >
                 Start
               </button>
@@ -434,7 +434,7 @@ export default function PomodoroTimer() {
               <>
                 <button
                   onClick={handleReset}
-                  className="bg-gray-600 hover:bg-gray-700 text-white px-8 py-3 rounded-full font-bold transition-colors duration-200"
+                  className="bg-gray-600 hover:bg-gray-700 text-white px-4 sm:px-8 py-2 sm:py-3 rounded-full font-bold transition-colors duration-200 text-sm sm:text-base"
                 >
                   Stop
                 </button>
@@ -445,14 +445,14 @@ export default function PomodoroTimer() {
                     isActive 
                       ? 'bg-red-600 hover:bg-red-700' 
                       : 'bg-blue-600 hover:bg-blue-700'
-                  } text-white px-8 py-3 rounded-full font-bold transition-colors duration-200`}
+                  } text-white px-4 sm:px-8 py-2 sm:py-3 rounded-full font-bold transition-colors duration-200 text-sm sm:text-base`}
                 >
                   {isActive ? 'Pause' : 'Resume'}
                 </button>
 
                 <button
                   onClick={handleSkip}
-                  className="bg-camera-accent hover:bg-camera-accent/80 text-black px-8 py-3 rounded-full font-bold transition-colors duration-200"
+                  className="bg-camera-accent hover:bg-camera-accent/80 text-black px-4 sm:px-8 py-2 sm:py-3 rounded-full font-bold transition-colors duration-200 text-sm sm:text-base"
                 >
                   Skip
                 </button>
