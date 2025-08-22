@@ -38,6 +38,54 @@ export default function PomodoroTimer() {
     longBreak: 15 * 60, // 15 minutes
   })
 
+  // Function to update favicon based on timer type
+  const updateFavicon = (type: TimerType) => {
+    const faviconPath = (() => {
+      switch (type) {
+        case 'focus':
+          return '/favicon-focus.ico'
+        case 'shortBreak':
+          return '/favicon-shortbreak.ico'
+        case 'longBreak':
+          return '/favicon-longbreak.ico'
+        default:
+          return '/favicon.ico'
+      }
+    })()
+
+    // Update existing favicon links or create new one
+    let link = document.querySelector("link[rel~='icon']") as HTMLLinkElement
+    if (!link) {
+      link = document.createElement('link')
+      link.rel = 'icon'
+      link.type = 'image/x-icon'
+      document.getElementsByTagName('head')[0].appendChild(link)
+    }
+    link.href = faviconPath
+
+    // Also update shortcut icon if it exists
+    const shortcutLink = document.querySelector("link[rel='shortcut icon']") as HTMLLinkElement
+    if (shortcutLink) {
+      shortcutLink.href = faviconPath
+    }
+
+    // Force favicon refresh by adding timestamp
+    const timestamp = new Date().getTime()
+    link.href = `${faviconPath}?v=${timestamp}`
+  }
+
+  // Function to update document title based on timer state
+  const updateTitle = (type: TimerType, timeLeft: number, isActive: boolean) => {
+    const formattedTime = formatTime(timeLeft)
+    const typeLabel = timerLabels[type]
+    
+    if (isActive) {
+      document.title = `${formattedTime} - ${typeLabel} | Pomodorin`
+    } else {
+      document.title = `${typeLabel} | Pomodorin`
+    }
+  }
+
   const timerLabels = {
     focus: 'Focus',
     shortBreak: 'Short Break',
@@ -139,6 +187,31 @@ export default function PomodoroTimer() {
       console.error('Error saving timer config to localStorage:', error)
     }
   }, [timerConfig, isLoaded])
+
+  // Update favicon when timer type changes
+  useEffect(() => {
+    if (isLoaded) {
+      updateFavicon(timerType)
+    }
+  }, [timerType, isLoaded])
+
+  // Update title when timer state changes
+  useEffect(() => {
+    if (isLoaded) {
+      updateTitle(timerType, timeLeft, isActive)
+    }
+  }, [timerType, timeLeft, isActive, isLoaded])
+
+  // Cleanup: Reset title and favicon when component unmounts
+  useEffect(() => {
+    return () => {
+      document.title = 'Pomodorin - Focus Timer'
+      let link = document.querySelector("link[rel~='icon']") as HTMLLinkElement
+      if (link) {
+        link.href = '/favicon.ico'
+      }
+    }
+  }, [])
 
   useEffect(() => {
     if (isActive && timeLeft > 0) {
@@ -244,36 +317,7 @@ export default function PomodoroTimer() {
           : session
       )
     })
-  }
-
-  const handleResetProgress = () => {
-    if (confirm('Are you sure you want to reset all progress? This will clear your streak, sessions, and all notes.')) {
-      try {
-        // Clear localStorage
-        localStorage.removeItem('pomodorin-streak')
-        localStorage.removeItem('pomodorin-sessions')
-        localStorage.removeItem('pomodorin-session-data')
-        localStorage.removeItem('pomodorin-timer-type')
-        localStorage.removeItem('pomodorin-timer-config')
-        
-        // Reset state
-        setStreak(0)
-        setSessions(0)
-        setSessionData([])
-        setTimerType('focus')
-        const defaultConfig = {
-          focus: 25 * 60,
-          shortBreak: 5 * 60,
-          longBreak: 15 * 60,
-        }
-        setTimerConfig(defaultConfig)
-        setTimeLeft(defaultConfig.focus)
-        setIsActive(false)
-      } catch (error) {
-        console.error('Error resetting progress:', error)
-      }
-    }
-  }
+  }  
 
   const handleSaveSettings = (newConfig: TimerConfig) => {
     setTimerConfig(newConfig)
