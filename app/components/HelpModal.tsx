@@ -1,7 +1,5 @@
 'use client'
 
-import { useState } from 'react'
-
 interface HelpModalProps {
   isOpen: boolean
   onClose: () => void
@@ -32,7 +30,7 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
             <h4 className="text-lg font-semibold mb-3">What is the Pomodoro Technique?</h4>
             <p className="leading-relaxed">
               The Pomodoro Technique is a time management method that uses a timer to break work into intervals, 
-              traditionally 25 minutes in length, separated by short breaks. Each interval is known as a "pomodoro."
+              traditionally 25 minutes in length, separated by short breaks. Each interval is known as a &quot;pomodoro.&quot;
             </p>
           </div>
 
@@ -41,7 +39,7 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
             <div className="space-y-3">
               <div className="flex items-start gap-3">
                 <span className="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">1</span>
-                <p>Click "Start" to begin a 25-minute focus session. Stay concentrated on your work during this time.</p>
+                <p>Click &quot;Start&quot; to begin a 25-minute focus session. Stay concentrated on your work during this time.</p>
               </div>
               <div className="flex items-start gap-3">
                 <span className="bg-yellow-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">2</span>
