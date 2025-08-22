@@ -88,7 +88,7 @@ export default function SessionCards({
   return (
     <div className="w-full max-w-6xl mx-auto p-4">
       <h3 className="text-white text-xl font-bold text-center mb-6">
-        Focus Sessions Task List
+        Task List Note 
       </h3>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -145,7 +145,7 @@ export default function SessionCards({
                   }`}>
                     <div
                       className={`h-2 rounded-full transition-all duration-300 ${
-                        isActive ? 'bg-primary' : isPast ? 'bg-green-500' : 'bg-primary'
+                        isActive ? 'bg-accent' : isPast ? 'bg-green-500' : 'bg-accent'
                       }`}
                       style={{ width: `${(completedCount / totalCount) * 100}%` }}
                     />
@@ -159,7 +159,7 @@ export default function SessionCards({
                   <div className="flex items-center gap-3">
                     <input
                       type="text"
-                      placeholder="Type your task"
+                      placeholder="Type your task..."
                       value={newTodos[sessionNumber] || ''}
                       onChange={(e) => setNewTodos({ 
                         ...newTodos, 
@@ -197,13 +197,13 @@ export default function SessionCards({
                       flex items-center gap-2 p-2 rounded-md transition-all duration-200
                       ${todo.completed 
                         ? isFuture
-                          ? 'bg-container-background border border-gray-600' 
+                          ? 'bg-container-background border-gray-600' 
                           : 'bg-component border border-green-200'
                         : isFuture
-                        ? 'bg-container-background border border-gray-700'
+                        ? 'bg-container-background border-gray-700'
                         : 'bg-foreground border border-gray-200'
                       }
-                      ${isFuture ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}
+                      ${isFuture ? 'hover:bg-gray-700' : 'hover:bg-container-background'}
                     `}
                   >
                     <button
@@ -237,8 +237,8 @@ export default function SessionCards({
                       onClick={() => handleDeleteTodo(sessionNumber, todo.id)}
                       className={`transition-colors duration-200 ${
                         isFuture 
-                          ? 'text-gray-500 hover:text-red-400' 
-                          : 'text-gray-400 hover:text-red-500'
+                          ? 'text-gray-500 hover:text-gray-100' 
+                          : 'text-gray-400 hover:text-white'
                       }`}
                     >
                       <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">

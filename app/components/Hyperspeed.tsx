@@ -1064,7 +1064,7 @@ const Hyperspeed: FC<HyperspeedProps> = ({ isTimerRunning = false, effectOptions
   return (
     <div
       id="lights"
-      className="absolute inset-0 -z-10 w-full h-full"
+      className="absolute inset-0 -z-10 w-full h-full flex items-end"
       ref={hyperspeed}
     ></div>
   );
