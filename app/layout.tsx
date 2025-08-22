@@ -22,7 +22,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://pomodorin.app",
+    url: "https://pomodorin.babon.io",
     siteName: "Pomodorin",
     title: "Pomodorin - Focus Timer",
     description: "A beautiful Pomodoro timer app to help you stay focused and productive. Features AI-generated motivational quotes, ambient music, and note-taking capabilities.",
@@ -44,7 +44,7 @@ export const metadata: Metadata = {
     description: "A beautiful Pomodoro timer app to help you stay focused and productive",
     images: ["/opengraph-image.png"],
   },
-  metadataBase: new URL("https://pomodorin.app"),
+  metadataBase: new URL("https://pomodorin.babon.io"),
   alternates: {
     canonical: "/",
   },
