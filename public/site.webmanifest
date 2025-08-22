@@ -1,0 +1,21 @@
+{
+  "name": "Pomodorin - Focus Timer",
+  "short_name": "Pomodorin",
+  "description": "A beautiful Pomodoro timer app to help you stay focused and productive",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "any",
+      "type": "image/x-icon",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["productivity", "utilities"],
+  "lang": "en",
+  "dir": "ltr"
+}

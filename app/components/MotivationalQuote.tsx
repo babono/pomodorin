@@ -91,7 +91,7 @@ function MotivationalQuote({ triggerGenerate }: MotivationalQuoteProps) {
       ) : currentQuote ? (
         <>
           <blockquote className="text-white/90 text-base italic mb-2">
-            "{currentQuote.text}"
+            &ldquo;{currentQuote.text}&rdquo;
           </blockquote>
           <cite className="text-white/70 text-sm font-normal">
             — {currentQuote.author}

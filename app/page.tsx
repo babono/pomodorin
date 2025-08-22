@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import { Tooltip } from '@mui/material'
 import SessionCards, { SessionData, TodoItem } from './components/SessionCards'
 import Hyperspeed from './components/Hyperspeed'
 import AIQuoteGenerator, { AIQuoteGeneratorRef } from './components/AIQuoteGenerator'
@@ -380,18 +381,23 @@ export default function PomodoroTimer() {
                         }
                       }
 
+                      const tooltipTitle = isFocusSession 
+                        ? `Focus Session ${Math.ceil(step / 2)}`
+                        : isShortBreak 
+                        ? `Short Break ${step / 2}`
+                        : 'Long Break'
+
                       return (
-                        <div
+                        <Tooltip
                           key={step}
-                          className={`w-3 h-3 rounded-full ${bgColor} ${additionalClasses} transition-colors duration-300`}
-                          title={
-                            isFocusSession 
-                              ? `Focus Session ${Math.ceil(step / 2)}`
-                              : isShortBreak 
-                              ? `Short Break ${step / 2}`
-                              : 'Long Break'
-                          }
-                        />
+                          title={tooltipTitle}
+                          arrow
+                          placement="bottom"
+                        >
+                          <div
+                            className={`w-3 h-3 rounded-full ${bgColor} ${additionalClasses} transition-colors duration-300 cursor-help`}
+                          />
+                        </Tooltip>
                       )
                     })}
                   </div>

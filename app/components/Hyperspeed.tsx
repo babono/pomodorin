@@ -12,13 +12,20 @@ import {
 } from "postprocessing";
 
 interface Distortion {
-  uniforms: Record<string, { value: any }>;
+  uniforms: Record<string, { value: unknown }>;
   getDistortion: string;
   getJS?: (progress: number, time: number) => THREE.Vector3;
 }
 
 interface Distortions {
   [key: string]: Distortion;
+}
+
+interface Assets {
+  smaa?: {
+    search?: HTMLImageElement;
+    area?: HTMLImageElement;
+  };
 }
 
 interface Colors {
@@ -232,8 +239,8 @@ class CarLights {
     const geometry = new THREE.TubeGeometry(curve, 40, 1, 8, false);
 
     const instanced = new THREE.InstancedBufferGeometry().copy(
-      geometry as any
-    ) as THREE.InstancedBufferGeometry;
+      geometry as unknown as THREE.InstancedBufferGeometry
+    );
     instanced.instanceCount = options.lightPairsPerRoadWay * 2;
 
     const laneWidth = options.roadWidth / options.lanesPerRoad;
@@ -405,8 +412,8 @@ class LightsSticks {
     const options = this.options;
     const geometry = new THREE.PlaneGeometry(1, 1);
     const instanced = new THREE.InstancedBufferGeometry().copy(
-      geometry as any
-    ) as THREE.InstancedBufferGeometry;
+      geometry as unknown as THREE.InstancedBufferGeometry
+    );
     const totalSticks = options.totalSideLightSticks;
     instanced.instanceCount = totalSticks;
 
@@ -563,7 +570,7 @@ class Road {
       segments
     );
 
-    let uniforms: Record<string, { value: any }> = {
+    let uniforms: Record<string, { value: unknown }> = {
       uTravelLength: { value: options.length },
       uColor: {
         value: new THREE.Color(
@@ -735,13 +742,13 @@ class App {
   renderPass!: RenderPass;
   bloomPass!: EffectPass;
   clock: THREE.Clock;
-  assets: Record<string, any>;
+  assets: Assets;
   disposed: boolean;
   road: Road;
   leftCarLights: CarLights;
   rightCarLights: CarLights;
   leftSticks: LightsSticks;
-  fogUniforms: Record<string, { value: any }>;
+  fogUniforms: Record<string, { value: unknown }>;
   fovTarget: number;
   speedUpTarget: number;
   speedUp: number;
@@ -868,13 +875,17 @@ class App {
       const areaImage = new Image();
       assets.smaa = {};
 
-      searchImage.addEventListener("load", function () {
-        assets.smaa.search = this;
+      searchImage.addEventListener("load", function (this: HTMLImageElement) {
+        if (assets.smaa) {
+          assets.smaa.search = this;
+        }
         manager.itemEnd("smaa-search");
       });
 
-      areaImage.addEventListener("load", function () {
-        assets.smaa.area = this;
+      areaImage.addEventListener("load", function (this: HTMLImageElement) {
+        if (assets.smaa) {
+          assets.smaa.area = this;
+        }
         manager.itemEnd("smaa-area");
       });
 
@@ -1048,7 +1059,7 @@ const Hyperspeed: FC<HyperspeedProps> = ({ isTimerRunning = false, effectOptions
         appRef.current = null;
       }
     };
-  }, []); // Empty dependency array - only run once
+  }, [effectOptions]); // Include effectOptions in dependency array
 
   // Effect to handle timer-based speed changes without re-rendering the scene
   useEffect(() => {
