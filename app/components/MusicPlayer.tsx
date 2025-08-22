@@ -39,7 +39,7 @@ export default function MusicPlayer() {
   return (
     <button
       onClick={toggleMusic}
-      className="bg-pink-500 hover:bg-pink-600 text-white px-6 py-3 rounded-full font-bold transition-all duration-200 flex items-center gap-3 shadow-lg hover:shadow-pink-500/25"
+      className="bg-pink-500 hover:bg-pink-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-full font-bold transition-all duration-200 flex items-center gap-3 shadow-lg hover:shadow-pink-500/25"
     >
       <Image
         src={isPlaying ? '/ic-pause.svg' : '/ic-play.svg'}
@@ -48,7 +48,7 @@ export default function MusicPlayer() {
         height={20}
         className="w-5 h-5"
       />
-      <span className="text-base">
+      <span className="text-sm sm:text-base">
         {isPlaying ? 'Pause Lofi' : 'Play Lofi'}
       </span>
     </button>

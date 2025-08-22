@@ -30,7 +30,7 @@ export default function ControlButtons({ onGenerateQuote }: ControlButtonsProps)
           isGeneratingQuote 
             ? 'bg-gradient-to-r from-[#66A1F3] via-[#22C9A6] to-[#66A1F3] animated-background cursor-not-allowed' 
             : 'bg-gradient-to-r from-[#66A1F3] to-[#22C9A6] hover:from-[#5A91E3] hover:to-[#1FB896]'
-        } text-white px-6 py-3 rounded-full font-bold transition-all duration-200 flex items-center gap-3 shadow-lg hover:shadow-teal-500/25`}
+        } text-white px-4 sm:px-6 py-2 sm:py-3 rounded-full font-bold transition-all duration-200 flex items-center gap-3 shadow-lg hover:shadow-teal-500/25`}
       >
         <Image
           src="/ic-ai.svg"
@@ -39,7 +39,7 @@ export default function ControlButtons({ onGenerateQuote }: ControlButtonsProps)
           height={20}
           className={`w-5 h-5 ${isGeneratingQuote ? 'animate-spin' : ''}`}
         />
-        <span className="text-base">
+        <span className="text-sm sm:text-base">
           {isGeneratingQuote ? 'Generating...' : 'New Quote'}
         </span>
       </button>            
