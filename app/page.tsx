@@ -369,22 +369,22 @@ export default function PomodoroTimer() {
       <Hyperspeed isTimerRunning={isActive && timerType === 'focus'} />
       
       {/* Top Right Buttons */}
-      <div className="absolute top-4 right-4 z-20 flex gap-2">
+      <div className="absolute top-2 right-2 sm:top-4 sm:right-4 z-20 flex gap-1 sm:gap-2">
         <button
           onClick={() => setIsHelpModalOpen(true)}
-          className="p-3 rounded-full transition-all duration-200 hover:bg-white/10"
+          className="p-2 sm:p-3 rounded-full transition-all duration-200 hover:bg-white/10"
           style={{ backgroundColor: 'rgba(180, 180, 180, 0.2)' }}
           title="Help"
         >
-          <img src="/ic-help.svg" alt="Help" className="w-5 h-5" style={{ filter: 'brightness(0) invert(1) opacity(0.7)' }} />
+          <img src="/ic-help.svg" alt="Help" className="w-4 h-4 sm:w-5 sm:h-5" style={{ filter: 'brightness(0) invert(1) opacity(0.7)' }} />
         </button>
         <button
           onClick={() => setIsSettingsModalOpen(true)}
-          className="p-3 rounded-full transition-all duration-200 hover:bg-white/10"
+          className="p-2 sm:p-3 rounded-full transition-all duration-200 hover:bg-white/10"
           style={{ backgroundColor: 'rgba(180, 180, 180, 0.2)' }}
           title="Settings"
         >
-          <img src="/ic-settings.svg" alt="Settings" className="w-5 h-5" style={{ filter: 'brightness(0) invert(1) opacity(0.7)' }} />
+          <img src="/ic-settings.svg" alt="Settings" className="w-4 h-4 sm:w-5 sm:h-5" style={{ filter: 'brightness(0) invert(1) opacity(0.7)' }} />
         </button>
       </div>
       
@@ -392,8 +392,8 @@ export default function PomodoroTimer() {
       <div className="relative z-10 min-h-screen flex flex-col justify-center">
         {/* Top Bar with Logo */}
         <div className="w-full">
-          <div className="text-center py-4 sm:py-6 px-4">
-            <h1 className="text-white text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6">POMODORIN</h1>
+          <div className="text-center py-2 sm:py-4 px-4">
+            <h1 className="text-white text-2xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6">POMODORIN</h1>
             <AIQuoteGenerator ref={quoteGeneratorRef} />
           </div>
         </div>

@@ -50,7 +50,7 @@ export default function SettingsModal({ isOpen, onClose, currentConfig, onSave }
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="bg-container-background backdrop-blur-md rounded-lg p-6 w-full max-w-md">
+      <div className="bg-container-background backdrop-blur-md rounded-lg p-6 w-full max-w-md max-h-[80vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-white text-xl font-bold">
             Timer Settings
@@ -148,23 +148,23 @@ export default function SettingsModal({ isOpen, onClose, currentConfig, onSave }
           </div>
         </div>
         
-        <div className="flex gap-3 justify-between mt-6 pt-4 border-t border-white/20">
+        <div className="flex flex-col sm:flex-row gap-3 justify-between mt-6 pt-4 border-t border-white/20">
           <button
             onClick={handleReset}
-            className="px-4 py-2 text-white bg-red-600 hover:bg-red-700 transition-colors rounded-full duration-200 font-bold text-sm"
+            className="px-4 py-2 text-white bg-red-600 hover:bg-red-700 transition-colors rounded-full duration-200 font-bold text-sm order-2 sm:order-1"
           >
             Reset to Default
           </button>
-          <div className="flex gap-3">
+          <div className="flex gap-3 order-1 sm:order-2">
             <button
               onClick={onClose}
-              className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white font-bold rounded-full transition-colors duration-200"
+              className="flex-1 sm:flex-none px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white font-bold rounded-full transition-colors duration-200"
             >
               Cancel
             </button>
             <button
               onClick={handleSave}
-              className="px-6 py-2 bg-accent text-white font-bold rounded-full hover:bg-accent/80 transition-colors duration-200"
+              className="flex-1 sm:flex-none px-6 py-2 bg-accent text-white font-bold rounded-full hover:bg-accent/80 transition-colors duration-200"
             >
               Save Settings
             </button>
