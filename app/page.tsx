@@ -6,6 +6,8 @@ import SessionCards, { SessionData, TodoItem } from './components/SessionCards'
 import Hyperspeed from './components/Hyperspeed'
 import AIQuoteGenerator, { AIQuoteGeneratorRef } from './components/AIQuoteGenerator'
 import ControlButtons from './components/ControlButtons'
+import HelpModal from './components/HelpModal'
+import SettingsModal from './components/SettingsModal'
 
 type TimerType = 'focus' | 'shortBreak' | 'longBreak'
 
@@ -25,12 +27,16 @@ export default function PomodoroTimer() {
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
   const [isLoaded, setIsLoaded] = useState(false)
   const quoteGeneratorRef = useRef<AIQuoteGeneratorRef>(null)
+  
+  // Modal states
+  const [isHelpModalOpen, setIsHelpModalOpen] = useState(false)
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false)
 
-  const timerConfig: TimerConfig = {
+  const [timerConfig, setTimerConfig] = useState<TimerConfig>({
     focus: 25 * 60, // 25 minutes
     shortBreak: 5 * 60, // 5 minutes
     longBreak: 15 * 60, // 15 minutes
-  }
+  })
 
   const timerLabels = {
     focus: 'Focus',
@@ -46,6 +52,13 @@ export default function PomodoroTimer() {
         const savedSessions = localStorage.getItem('pomodorin-sessions')
         const savedSessionData = localStorage.getItem('pomodorin-session-data')
         const savedTimerType = localStorage.getItem('pomodorin-timer-type')
+        const savedTimerConfig = localStorage.getItem('pomodorin-timer-config')
+        
+        // Load timer config first
+        if (savedTimerConfig) {
+          const parsedConfig = JSON.parse(savedTimerConfig)
+          setTimerConfig(parsedConfig)
+        }
         
         if (savedStreak) setStreak(parseInt(savedStreak, 10))
         if (savedSessions) setSessions(parseInt(savedSessions, 10))
@@ -62,8 +75,9 @@ export default function PomodoroTimer() {
           setSessionData(processedData)
         }
         if (savedTimerType && ['focus', 'shortBreak', 'longBreak'].includes(savedTimerType)) {
+          const configToUse = savedTimerConfig ? JSON.parse(savedTimerConfig) : timerConfig
           setTimerType(savedTimerType as TimerType)
-          setTimeLeft(timerConfig[savedTimerType as TimerType])
+          setTimeLeft(configToUse[savedTimerType as TimerType])
         }
       } catch (error) {
         console.error('Error loading from localStorage:', error)
@@ -115,6 +129,16 @@ export default function PomodoroTimer() {
       console.error('Error saving timer type to localStorage:', error)
     }
   }, [timerType, isLoaded])
+
+  useEffect(() => {
+    if (!isLoaded) return
+    
+    try {
+      localStorage.setItem('pomodorin-timer-config', JSON.stringify(timerConfig))
+    } catch (error) {
+      console.error('Error saving timer config to localStorage:', error)
+    }
+  }, [timerConfig, isLoaded])
 
   useEffect(() => {
     if (isActive && timeLeft > 0) {
@@ -230,17 +254,32 @@ export default function PomodoroTimer() {
         localStorage.removeItem('pomodorin-sessions')
         localStorage.removeItem('pomodorin-session-data')
         localStorage.removeItem('pomodorin-timer-type')
+        localStorage.removeItem('pomodorin-timer-config')
         
         // Reset state
         setStreak(0)
         setSessions(0)
         setSessionData([])
         setTimerType('focus')
-        setTimeLeft(timerConfig.focus)
+        const defaultConfig = {
+          focus: 25 * 60,
+          shortBreak: 5 * 60,
+          longBreak: 15 * 60,
+        }
+        setTimerConfig(defaultConfig)
+        setTimeLeft(defaultConfig.focus)
         setIsActive(false)
       } catch (error) {
         console.error('Error resetting progress:', error)
       }
+    }
+  }
+
+  const handleSaveSettings = (newConfig: TimerConfig) => {
+    setTimerConfig(newConfig)
+    // If timer is not running and we're at the start of a session, update time
+    if (!isActive && timeLeft === timerConfig[timerType]) {
+      setTimeLeft(newConfig[timerType])
     }
   }
 
@@ -266,6 +305,26 @@ export default function PomodoroTimer() {
     <div className="min-h-screen relative overflow-hidden">
       {/* Hyperspeed Background */}
       <Hyperspeed isTimerRunning={isActive && timerType === 'focus'} />
+      
+      {/* Top Right Buttons */}
+      <div className="absolute top-4 right-4 z-20 flex gap-2">
+        <button
+          onClick={() => setIsHelpModalOpen(true)}
+          className="p-3 rounded-full transition-all duration-200 hover:bg-white/10"
+          style={{ backgroundColor: 'rgba(180, 180, 180, 0.2)' }}
+          title="Help"
+        >
+          <img src="/ic-help.svg" alt="Help" className="w-5 h-5" style={{ filter: 'brightness(0) invert(1) opacity(0.7)' }} />
+        </button>
+        <button
+          onClick={() => setIsSettingsModalOpen(true)}
+          className="p-3 rounded-full transition-all duration-200 hover:bg-white/10"
+          style={{ backgroundColor: 'rgba(180, 180, 180, 0.2)' }}
+          title="Settings"
+        >
+          <img src="/ic-settings.svg" alt="Settings" className="w-5 h-5" style={{ filter: 'brightness(0) invert(1) opacity(0.7)' }} />
+        </button>
+      </div>
       
       {/* Main Content Container - Centered */}
       <div className="relative z-10 min-h-screen flex flex-col justify-center">
@@ -475,6 +534,18 @@ export default function PomodoroTimer() {
           
         </div>
       </div>
+
+      {/* Modals */}
+      <HelpModal 
+        isOpen={isHelpModalOpen} 
+        onClose={() => setIsHelpModalOpen(false)} 
+      />
+      <SettingsModal
+        isOpen={isSettingsModalOpen}
+        onClose={() => setIsSettingsModalOpen(false)}
+        currentConfig={timerConfig}
+        onSave={handleSaveSettings}
+      />
     </div>
   )
 }
