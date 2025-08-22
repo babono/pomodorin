@@ -53,25 +53,32 @@ export default function PomodoroTimer() {
       }
     })()
 
-    // Update existing favicon links or create new one
-    let link = document.querySelector("link[rel~='icon']") as HTMLLinkElement
-    if (!link) {
-      link = document.createElement('link')
-      link.rel = 'icon'
-      link.type = 'image/x-icon'
-      document.getElementsByTagName('head')[0].appendChild(link)
-    }
-    link.href = faviconPath
-
-    // Also update shortcut icon if it exists
-    const shortcutLink = document.querySelector("link[rel='shortcut icon']") as HTMLLinkElement
-    if (shortcutLink) {
-      shortcutLink.href = faviconPath
-    }
-
     // Force favicon refresh by adding timestamp
     const timestamp = new Date().getTime()
-    link.href = `${faviconPath}?v=${timestamp}`
+    const faviconWithTimestamp = `${faviconPath}?v=${timestamp}`
+
+    // Remove all existing favicon links
+    const existingFavicons = document.querySelectorAll('link[rel*="icon"]')
+    existingFavicons.forEach(link => link.remove())
+
+    // Create new favicon links with the updated path
+    const iconLink = document.createElement('link')
+    iconLink.rel = 'icon'
+    iconLink.type = 'image/x-icon'
+    iconLink.href = faviconWithTimestamp
+    document.head.appendChild(iconLink)
+
+    const shortcutLink = document.createElement('link')
+    shortcutLink.rel = 'shortcut icon'
+    shortcutLink.type = 'image/x-icon' 
+    shortcutLink.href = faviconWithTimestamp
+    document.head.appendChild(shortcutLink)
+
+    // Also add apple-touch-icon for mobile devices
+    const appleLink = document.createElement('link')
+    appleLink.rel = 'apple-touch-icon'
+    appleLink.href = faviconWithTimestamp
+    document.head.appendChild(appleLink)
   }
 
   // Function to update document title based on timer state
@@ -206,10 +213,21 @@ export default function PomodoroTimer() {
   useEffect(() => {
     return () => {
       document.title = 'Pomodorin - Focus Timer'
-      const link = document.querySelector("link[rel~='icon']") as HTMLLinkElement
-      if (link) {
-        link.href = '/favicon.ico'
-      }
+      
+      // Reset all favicon links back to default
+      const faviconSelectors = [
+        'link[rel="shortcut icon"]',
+        'link[rel="icon"]',
+        'link[rel*="icon"]',
+        'link[type="image/x-icon"]'
+      ]
+      
+      faviconSelectors.forEach(selector => {
+        const links = document.querySelectorAll(selector) as NodeListOf<HTMLLinkElement>
+        links.forEach(link => {
+          link.href = '/favicon.ico'
+        })
+      })
     }
   }, [])
 
